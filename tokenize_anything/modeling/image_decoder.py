@@ -20,6 +20,9 @@ try:
 except ImportError:
     flash_attn_func = None
 
+from xformers.ops import memory_efficient_attention
+flash_attn_func = memory_efficient_attention
+
 import torch
 from torch import nn
 
@@ -62,7 +65,7 @@ class Attention(nn.Module):
         q = self.q_proj(q).view((-1, q.size(1), self.num_heads, self.head_dim))
         k = self.k_proj(k).view((-1, k.size(1), self.num_heads, self.head_dim))
         v = self.v_proj(v).view((-1, v.size(1), self.num_heads, self.head_dim))
-        o = flash_attn_func(q, k, v, softmax_scale=self.scale)
+        o = flash_attn_func(q, k, v)
         return self.proj(o.flatten(2))
 
 

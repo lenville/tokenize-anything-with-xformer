@@ -4,3 +4,4 @@ gradio-image-prompter
 sentencepiece
 torch
 flash-attn
+xformers

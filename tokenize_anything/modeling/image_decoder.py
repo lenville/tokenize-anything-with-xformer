@@ -16,12 +16,9 @@
 """Image decoder."""
 
 try:
-    from flash_attn import flash_attn_func
+    from xformers.ops import memory_efficient_attention
 except ImportError:
-    flash_attn_func = None
-
-from xformers.ops import memory_efficient_attention
-flash_attn_func = memory_efficient_attention
+    memory_efficient_attention = None
 
 import torch
 from torch import nn
@@ -65,7 +62,7 @@ class Attention(nn.Module):
         q = self.q_proj(q).view((-1, q.size(1), self.num_heads, self.head_dim))
         k = self.k_proj(k).view((-1, k.size(1), self.num_heads, self.head_dim))
         v = self.v_proj(v).view((-1, v.size(1), self.num_heads, self.head_dim))
-        o = flash_attn_func(q, k, v)
+        o = memory_efficient_attention(q, k, v, scale=self.scale)
         return self.proj(o.flatten(2))
 
 
